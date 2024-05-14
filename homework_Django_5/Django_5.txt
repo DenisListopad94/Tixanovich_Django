@@ -1,0 +1,168 @@
+1)	‘оздать наследование моделей согласно схеме в начале главы. ‘делать миграции
+
+class User(models.Model):
+    SEX_PERSON = {
+        "m": "male",
+        "f": "female",
+    }
+    first_name = models.CharField(max_length=30, null=True)
+    last_name = models.CharField(max_length=50, null=True)
+    age = models.PositiveIntegerField()
+    sex = models.CharField(max_length=1, choices=SEX_PERSON, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} {self.age}"
+
+
+class Person(User):
+    guest_rating = models.IntegerField(null=True)
+
+
+class HotelOwner(User):
+    owner_exp_status = models.IntegerField(null=True)
+	
+
+
+class Comment(models.Model):
+    comment = models.CharField(max_length=200, null=True)
+    comment_time = models.DateTimeField(auto_now_add=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class HotelsComment(Comment):
+    hotel_rating = models.PositiveIntegerField(null=True)
+    hotels = models.ForeignKey(
+        to="Hotel",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="hotel_comments"
+    )
+    persons = models.ForeignKey(
+        to="Person",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="hotel_comments"
+    )
+
+    def __str__(self):
+        return f"{self.comment}"
+
+
+class PersonComment(Comment):
+    person_rating = models.PositiveIntegerField(null=True)
+    hotels = models.ForeignKey(
+        to="Hotel",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="person_comments"
+    )
+    persons = models.ForeignKey(
+        to="Person",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="person_comments"
+    )
+
+    def __str__(self):
+        return f"{self.comment}"
+		
+________________
+
+2)	Установить Django-debug-toolbar.
+
+django-debug-toolbar==4.3.0
+
+________________
+
+3)	Добавить страницу для отображения Отелей. Вывести шаблон с отображением всех 
+отелей их владельцев и комментариев. При необходимости решить проблему N+1.
+
+{% extends "base.html" %}
+
+{% block title %} Отели {% endblock %}
+
+{% block content %}
+
+    <h2> Информация об отелях </h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">name</th>
+      <th scope="col">owners</th>
+      <th scope="col">comments</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for hotel in hotels %}
+    <tr>
+      <th scope="row">{{hotel.id}}</th>
+      <td>{{hotel.name}}</td>
+      <td>{{hotel.owners.first_name}}
+          {{hotel.owners.last_name}}
+      </td>
+      <td>
+        {% for comment in hotel.hotel_comments.all %}
+          {{comment.comment}}
+        {% endfor %}
+      </td>
+    </tr>
+  {% endfor %}
+
+  </tbody>
+</table>
+
+{% endblock %}
+________________
+
+4)	Вывести всех пользователей с их хобби, решить проблему N+1 запросов. 
+
+def persons_view(request):
+    context = {
+        "persons": Person.objects.all().prefetch_related("hobbies")
+    }
+    return render(
+        request=request,
+        template_name="persons.html",
+        context=context
+    )
+________________
+
+5)	Почитать и написать ответ на вопрос. Когда используется Prefetch?
+
+Prefetch в Django используется для оптимизации запросов к базе данных, когда вам нужно загрузить 
+связанные объекты в одном запросе. Это особенно полезно при работе с большими наборами данных, когда 
+без оптимизации может возникнуть проблема N+1 запросов, что может существенно замедлить работу приложения.
+Проблема N+1 запросов возникает, когда для каждого объекта в наборе данных выполняется отдельный запрос 
+для получения связанных объектов. Например, если у вас есть список пользователей, и для каждого пользователя 
+вы хотите получить его комментарии, без использования Prefetch для каждого пользователя будет выполнен 
+отдельный запрос к базе данных для получения его комментариев, что может быть очень неэффективно.
+Prefetch позволяет вам предварительно загрузить связанные объекты в одном запросе, что значительно уменьшает 
+количество запросов к базе данных и улучшает производительность.
+________________
+
+6)	Создать индексы для Person по которым чаще всего осуществляется поиск, 
+а именно по именам пользователей, возрасту и т д. 
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["last_name", "first_name"], name="last_first_name_idx"),
+            models.Index(fields=["first_name"], name="first_name_idx"),
+            models.Index(fields=["last_name"], name="last_name_idx"),
+			models.Index(fields=["age"], name="age_idx"),
+        ]
+________________
+
+7)	Создать индексы для  Hotels по которым чаще всего осуществляется поиск.
+
+ class Meta:
+        indexes = [
+            models.Index(fields=["name"], name="name_idx"),
+            models.Index(fields=["address"], name="address_idx"),
+            models.Index(fields=["stars"], name="stars_idx"),
+        ]
