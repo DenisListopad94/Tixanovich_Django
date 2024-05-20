@@ -1,0 +1,110 @@
+1)	Создать 2 модели Persons(пример из аудиторного занятия) и 
+Hotels( name models.Charfield(maxlength =40),
+    stars models.IntegerField, 
+    address models.Charfield(maxlength =40), 
+    city models.Charfield(maxlength =40),
+    phone= models.Charfield(maxlength = 40))
+
+
+class Person(models.Model):
+    SEX_PERSON = {
+        "m": "male",
+        "f": "female",
+    }
+    first_name = models.CharField(max_length=30, null=True)
+    last_name = models.CharField(max_length=50)
+    age = models.PositiveIntegerField()
+    sex = models.CharField(max_length=1, choices=SEX_PERSON)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+
+class Hotels(models.Model):
+    name = models.CharField(max_length=40)
+    stars = models.IntegerField()
+    address = models.CharField(max_length=40)
+    city = models.CharField(max_length=40)
+    phone = models.CharField()
+
+    def __str__(self):
+        return f"{self.name}"
+py manage.py makemigrations 
+py manage.py migrate
+
+________________________________________
+2)	Ввести 10 разных отелей с разным количеством звёзд и разных городах
+
+Hotels.objects.create(name="Best Western Seaport Inn", stars=4, address="33 Peck Slip New York, NY 10038", city="New York", phone="212-766-6600")
+Hotels.objects.create(name="Club Quarters – WTC", stars=3, address="140 Washington Street New York, NY 10006", city="New York", phone="212-577-2133")
+Hotels.objects.create(name="Marriott Downtown", stars=3, address="85 West Street (at Albany Street)", city="Chicago", phone="303-227-8136")
+Hotels.objects.create(name="Millenium Hilton", stars=4, address="55 Church Street", city="Los Angeles", phone="507-571-2316")
+Hotels.objects.create(name="Ritz Carlton Battery Park", stars=5, address="2 West Street", city="Philadelphia", phone="358-344-3801")
+Hotels.objects.create(name="TriBeCa Grand Hotel", stars=4, address="2 Ave of the Americas", city="Antonio", phone="703-519-6600 (P)")
+Hotels.objects.create(name="W Downtown", stars=3, address="123 Washington Street", city="San Diego", phone="646-826-8600 (P)")
+Hotels.objects.create(name="Gild Hall", stars=4, address="15 Gold Street", city="Detroit", phone="687-232-7700 (P)")
+Hotels.objects.create(name="Doubletree Financial Center", stars=5, address="8 Stone Street", city="New York", phone="212-480-9200 (F)")
+Hotels.objects.create(name="Eurostars Wall Street", stars=4, address="129 Front Street", city="New York", phone="212-742-0003 (P)")
+
+________________________________________
+3)	Ввести 10 разных пользователей разных возрастов
+Person.objects.create(first_name="John", last_name="Watson", age=42, sex="m")
+Person.objects.create(first_name="Poul", last_name="Uoker", age=39, sex="m")
+Person.objects.create(first_name="Sarah", last_name="Connor", age=21, sex="f")
+Person.objects.create(first_name="Jesika", last_name="Simpson", age=28, sex="f")
+Person.objects.create(first_name="Nick", last_name="Kage", age=40, sex="m")
+Person.objects.create(first_name="Suzan", last_name="Sarandon", age=53, sex="f")
+Person.objects.create(first_name="Suzan", last_name="Leen", age=21, sex="f")
+Person.objects.create(first_name="Jak", last_name="Reacher", age=35, sex="m")
+Person.objects.create(first_name="Nina", last_name="Ricci", age=47, sex="f")
+Person.objects.create(first_name="Nick", last_name="Safronov", age=61, sex="m")
+
+________________________________________
+4)	Вывести всех пользователей сайта.
+persons = Person.objects.all()
+
+
+________________________________________
+5)	Вывести все отели, имеющие более 3 звёзд!
+hotels = Hotels.objects.filter(stars__gt = 3)
+
+________________________________________
+6)	Вывести тех пользователей которые старше 40 лет а имя начинается на “P”.
+persons = Person.objects.filter(age__gte = 40, first_name__startswith = "P")
+
+________________________________________
+7)	Найти всех пользователей которых зовут “Nick” или “Suzan”
+persons = Person.objects.filter(first_name__in = ["Nick", "Suzan"])
+
+________________________________________
+8)	Вывести первых 5 самых младших людей на сайте.
+persons = Person.objects.order_by("age")[0:5]
+
+________________________________________
+9)	Вывести всех девушек в возрасте от 18 до 30 лет
+persons = Person.objects.filter(age__gte = 18, age__lte = 30, sex = "f")
+
+________________________________________
+10)	Добавить поле email в модель Persons. Сделать возможным оставить это поля пустым(null=True). 
+Сделать миграцию. Заполнить у нескольких пользователей почту. Вывести всех пользователей, 
+которые не заполнили почту на сайте.
+
+class Person(models.Model):
+    SEX_PERSON = {
+        "m": "male",
+        "f": "female",
+    }
+    first_name = models.CharField(max_length=30, null=True)
+    last_name = models.CharField(max_length=50)
+    age = models.PositiveIntegerField()
+    sex = models.CharField(max_length=1, choices=SEX_PERSON)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    email = models.EmailField(null=True)
+py manage.py makemigrations 
+py manage.py migrate
+
+persons = Person.objects.filter(email__isnull=True)
+

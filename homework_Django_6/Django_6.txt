@@ -1,0 +1,117 @@
+1)	Подключить отображение всех моделей в админ панели.
+
+class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        "first_name", "last_name", "age", "sex",
+        "created_at", "updated_at",
+    ]
+
+class PersonAdmin(admin.ModelAdmin):
+    list_display = [
+        "first_name", "last_name", "age",
+        "sex", "created_at", "updated_at",
+    ]
+
+class HotelOwnerAdmin(admin.ModelAdmin):
+    list_display = [
+        "first_name", "last_name", "age",
+        "sex", "created_at", "updated_at",
+    ]
+
+class ProfileAdmin(admin.ModelAdmin):
+    pass
+    list_display = [
+        "photo", "id_card_number",
+        "serial", "person_id",
+    ]
+
+class HotelAdmin(admin.ModelAdmin):
+    list_display = [
+        "name", "address", "stars",
+        "rating", "owners",
+    ]
+
+class BookInfoAdmin(admin.ModelAdmin):
+    list_display = ["detail", "book_time", "persons"]
+
+class HotelsCommentAdmin(admin.ModelAdmin):
+    list_display = ["hotel_rating", "hotels", "persons"]
+
+class PersonCommentAdmin(admin.ModelAdmin):
+    list_display = ["person_rating", "hotels", "persons"]
+
+class HobbyAdmin(admin.ModelAdmin):
+    list_display = ["name", "detail"]	
+________________
+2)	Для модели Users написать поля поиска по некоторым полям.
+
+search_fields = ["first_name", "last_name", "age"]
+________________
+3)	Все колонки типа int модели Users сделайте editable.
+
+list_editable = ["age"]
+________________
+4)	C помощью fieldsets выведите только самые главные поля. Остальные показывайте по запросу.
+
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["first_name", "last_name"],
+            },
+        ),
+        (
+            "Advanced options",
+            {
+                "classes": ["collapse"],
+                "fields": ["age", "sex"],
+            },
+        ),
+    ]
+________________
+5)	Создать фильтр по самым часто используемым полям.
+
+list_filter = ["first_name", "last_name", "age", "sex"]
+________________
+6)	Создать 5 Inline классов для связанных моделей.
+
+class BookInfoInline(admin.TabularInline):
+    model = BookInfo
+
+class HotelsCommentInLine(admin.TabularInline):
+    model = HotelsComment
+
+class HobbyInline(admin.TabularInline):
+    model = Hobby.owners.through
+
+class ProfileInline(admin.TabularInline):
+    model = Profile
+
+class PersonCommentInline(admin.TabularInline):
+    model = PersonComment
+
+class HotelInline(admin.TabularInline):
+    model = Hotel
+
+class HotelAdmin(admin.ModelAdmin):
+    ]
+    inlines = [
+        BookInfoInline,
+        HotelsCommentInLine,
+		PersonCommentInline,
+    ]
+	
+class UserAdmin(admin.ModelAdmin):
+	inlines = [
+		HobbyInline,
+		ProfileInline,
+	]
+
+class HotelOwnerAdmin(admin.ModelAdmin):
+     inlines = [
+        HotelInline,
+        ProfileInline,
+    ]
+
+________________
+

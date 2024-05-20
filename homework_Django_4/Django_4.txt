@@ -1,0 +1,41 @@
+1)	—оздать диаграмму зависимости моделей ORM с помощью сайта: https://yuml.me/
+
+// Friender Diagram
+
+[person]1-1[profile| photo: file; id_card_number: int; serial: string]
+[person]*-*[hobbies| name: string; experience: int]
+[person]1-*[book_info| person_id: FK; hotels_id: FK; time_order: time; detail: string]
+[person]1-*[hotel_comments| person_id: FK; hotels_id: FK; comment: string; time_comment: time]
+
+[hotel_owner]1-1[profile]
+[hotel_owner]*-*[hobbies]
+[hotel_owner]1-*[hotels]
+
+[hotels|name: string;address: string; stars: int; rating: float; owner_id: int]1-*[hotel_comments]
+[hotels]1-*[book_info]
+_______________________
+
+2)	По нарисованной диаграмме создать модели и связать их внешними ключами.
+3)	Проработать логику проекта, добавив необходимые ограничения.
+4)	Зарегистрировать модели в файле admin.py
+5)	Добавить 8-10 объектов для каждой модели в проекте. Добавить отель по названию “B&B”
+6)	Вывести всех пользователей старше 30 которые были в отеле  B&B
+
+users_in_bnb = Person.objects.filter(age__gt=30).filter(booking_info__hotels__name='B&B')
+
+7)	Вывести первых 5 девушек у которых больше 3 хобби.
+hobbies = 
+
+Person.objects.filter(sex='f').annotate(hobby_count=Count('hobbies')).filter(hobby_count__gt=3).order_by('created_at')[:5]
+
+
+8)	Вывести все заведения с максимальным рейтингом в 5 звёзд.
+hotels_raiting = Hotel.objects.filter(rating=5)
+
+9)	Вывести все комментарии отеля B&B которые сделали пользователи, которые в нём остановились и возраст которых от 20 до 30 лет.
+hotel_bnb_comments = HotelsComment.objects.filter(hotels__name='B&B').filter(persons__age__range=(20, 30))
+
+10)	Выведите все данные из таблицы Profile для владельца B&B.
+hotel_bnb_owner = Hotel.objects.get(name='B&B').owners
+owner_profile = Profile.objects.filter(person_id=hotel_bnb_owner.id)
+

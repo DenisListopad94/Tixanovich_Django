@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %} Комментарии {% endblock %}
+
+{% block content %}
+
+    <h2> Комментарии пользователей </h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">name</th>
+      <th scope="col">comment</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for comment in comments %}
+    <tr>
+      <th scope="row">{{comment.number}}</th>
+      <td>{{comment.name}}</td>
+      <td>{{comment.comment}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
