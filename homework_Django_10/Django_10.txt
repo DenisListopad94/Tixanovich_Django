@@ -1,0 +1,105 @@
+1)	—оздать несколько пользователей через админ панель Django и дать разрешени€
+ на просмотр и изменени€ различных моделей
+
+________________
+
+2)	—оздать одного пользовател€ через Django shell, наделить его правами staff 
+и active, а также дать доступ к добавлению и просмотру всех отелей и комментариев 
+пользователей.
+
+User.objects.create_user("Ivan", "ivan@booking.com", "abcd231400")
+
+user = User.objects.get(username = 'Ivan')
+user.is_staff = True
+user.is_active = True
+user.save() 
+
+permissions = [
+    Permission.objects.get(codename='add_hotel'),
+    Permission.objects.get(codename='view_hotel'),
+	Permission.objects.get(codename='add_hotelscomment'),
+    Permission.objects.get(codename='view_hotelscomment')
+    ]
+user.user_permissions.set(permissions)
+________________
+
+3)	—оздать группу через Django shell. ¬ группу добавить возможность добавл€ть 
+измен€ть удал€ть и просматривать владельцев отелей. „ерез shell, наделить правами 
+этой группы одного из пользователей, созданных в первом задании.
+
+Group.objects.create(name = "hotel owners editor")
+
+group_hotel_owners_editor = Group.objects.get(name = "hotel owners editor")
+permissions = [
+    Permission.objects.get(codename='add_hotelowner'),
+    Permission.objects.get(codename='change_hotelowner'),
+    Permission.objects.get(codename='delete_hotelowner'),
+    Permission.objects.get(codename='view_hotelowner')
+    ]
+
+group_hotel_owners_editor.permissions.set(permissions)
+
+user = User.objects.get(username = 'Ivan')
+user.groups.add(group_hotel_owners_editor)
+________________
+
+4)	„ерез login_required дать доступ к некотором вьюшкам, только дл€ аутентифицированных 
+пользователей, а также через permission_requiered  проверить права дл€ просмотра отелей 
+и пользователей.
+
+@permission_required(booking_app.view_hotel)
+@login_required(login_url="/admin/login/")
+def hotels_view(request):
+    context = {
+        "hotels": Hotel.objects.all()
+    }
+    return render(
+        request=request,
+        template_name="hotels.html",
+        context=context
+    )
+
+class PersonListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):  
+    permission_required = ["booking_app.view.person"]     
+    login_url = "/admin/login/"                          
+    template_name = "persons.html"                   
+    model = Person
+    queryset = Person.objects.all()  # [:10]
+    context_object_name = "persons"
+    paginate_by = 5
+________________
+
+5)	¬ DRF настроить базовую аутентифицикацию через токены. ѕолучить токен разными 
+способами и просмотреть данные.
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
+INSTALLED_APPS = [
+    'rest_framework.authtoken',
+]
+
+py manage.py migrate
+
+py manage.py drf_create_token tikhan
+
+
+user = User.objects.get(username='cisza')
+token = Token.objects.create(user=user)
+
+________________
+
+
+________________
+
+
+________________
+
+
+
+
+
