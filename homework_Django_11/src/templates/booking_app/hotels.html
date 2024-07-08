@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %} Hotels {% endblock %}
+
+{% block content %}
+{% load cache %}
+{% cache 60 sidebar %}
+
+    <h2> Hotels info </h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">name</th>
+      <th scope="col">address</th>
+      <th scope="col">owners</th>
+      <th scope="col">comments</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for hotel in hotels %}
+    <tr>
+      <th scope="row">{{hotel.id}}</th>
+      <td>{{hotel.name}}</td>
+      <td>{{hotel.address}}</td>
+      <td>{{hotel.owners.first_name}}
+          {{hotel.owners.last_name}}
+      </td>
+      <td>
+        {% for comment in hotel.hotel_comments.all %}
+          {{comment.comment}}
+        {% endfor %}
+      </td>
+    </tr>
+  {% endfor %}
+
+  </tbody>
+</table>
+{% endcache %}
+{% endblock %}

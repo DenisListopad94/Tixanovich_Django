@@ -1,0 +1,160 @@
+1)	Реализуйте класс UniqueQueue, очереди которая хранит только уникальные 
+элементы в списке. При добавлении нового элемента(который уже есть ) в 
+очередь ничего не должно происходить. Уникальный же элемент добавляйте 
+обычным образом.
+
+class UniqueQueue():
+    LIFO = "LIFO"
+    STRATEGIES = [LIFO]
+
+    def __init__(self, strategy):
+        if strategy not in self.STRATEGIES:
+            raise TypeError
+        self.strategy = strategy
+        self.queue = []
+
+    def add(self, item):
+        if item not in self.queue:
+            self.queue.append(item)
+________________
+2)	В классе UniqueQueue реализуйте методы для получения длинны очереди 
+и последнего элемента, добавленного в очередь
+
+    def len_queue(self):
+        return len(self.queue)
+
+    def last_item_in_queue(self):
+        if self.queue:
+            return self.queue[-1]
+        return None
+   
+   def pop(self):
+        if self.queue:
+            return self.queue.pop(-1)
+        return None
+________________
+3)	Реализуйте тесты для стратегии LIFO, а также для проверки методов 
+описанных во 2 пункте. У вас должно быть не менее 10 различных тестовых 
+сценариев.
+
+class TestUniqueQueue(unittest.TestCase):
+    def test_unique_queue_exist(self):
+        queue = UniqueQueue(strategy="LIFO")
+
+    def test_exist_strategy_lifo(self):
+        with self.assertRaises(TypeError):
+            queue = UniqueQueue(strategy="FIFO")
+
+    def test_add_some_item_to_queue(self):
+        queue = UniqueQueue(strategy="LIFO")
+        first_item = 25
+        queue.add(first_item)
+        get_item = queue.pop()
+        self.assertEqual(get_item, first_item)
+
+    def test_add_many_item_to_unique_queue(self):
+        queue = UniqueQueue(strategy="LIFO")
+        test_values = [1, 2, 3]
+        for ind in range(len(test_values)):
+            queue.add(test_values[ind])
+
+        for ind in range(len(test_values)-1, -1):
+            get_value = queue.pop()
+            self.assertEqual(get_value, test_values[ind])
+
+    def test_add_duplicate_items(self):
+        queue = UniqueQueue(strategy="LIFO")
+        first_item = 25
+        second_item = 25
+        queue.add(first_item)
+        queue.add(second_item)
+        test_len = 1
+        self.assertEqual(queue.len_queue(), test_len)
+        self.assertEqual(queue.last_item_in_queue(), first_item)
+
+    def test_add_unique_items(self):
+        queue = UniqueQueue(strategy="LIFO")
+        first_item = 24
+        second_item = 25
+        test_len = 2
+        queue.add(first_item)
+        queue.add(second_item)
+        self.assertEqual(queue.len_queue(), test_len)
+        self.assertEqual(queue.last_item_in_queue(), second_item)
+
+    def test_pop_lifo_strategy(self):
+        queue = UniqueQueue(strategy="LIFO")
+        first_item = 24
+        second_item = 25
+        test_len = 1
+        queue.add(first_item)
+        queue.add(second_item)
+        popped_item = queue.pop()
+        self.assertEqual(popped_item, second_item)
+        self.assertEqual(queue.len_queue(), test_len)
+        self.assertEqual(queue.last_item_in_queue(), first_item)
+
+    def test_empty_queue_pop(self):
+        queue = UniqueQueue(strategy="LIFO")
+        queue.pop()
+        self.assertIsNone(queue.last_item_in_queue())
+
+    def test_last_item_in_queue_where_last_item_null(self):
+        queue = UniqueQueue(strategy="LIFO")
+        self.assertIsNone(queue.last_item_in_queue())
+
+    def test_len_queue_without_items(self):
+        queue = UniqueQueue(strategy="LIFO")
+        test_len = 0
+        self.assertEqual(queue.len_queue(), test_len)
+
+
+________________
+4)	Подключите тестовую базу данных Django и Создайте модель Queue. Сделайте 
+рефакторинг вашей UniqueQueue с использованием  созданой модели. 
+
+class Queue(models.Model):
+    queue = models.PositiveIntegerField(null=True)
+
+    def __str__(self):
+        return f" {self.queue} "
+
+
+class UniqueQueue:
+    LIFO = "LIFO"
+    STRATEGIES = [LIFO]
+
+    def __init__(self, strategy):
+        if strategy not in self.STRATEGIES:
+            raise TypeError
+        self.strategy = strategy
+        self.queue = Queue.objects.all()
+
+    def add(self, item):
+        if not Queue.objects.filter(queue=item).exists():
+            Queue.objects.create(queue=item)
+
+    def len_queue(self):
+        return Queue.objects.count()
+
+    def last_item_in_queue(self):
+        if self.queue.exists():
+            last_queue_object = self.queue.last()
+            return last_queue_object.queue
+        return None
+
+    def pop(self):
+        queue = Queue.objects.order_by("id").last()
+        if queue:
+            queue = queue.queue
+            Queue.objects.order_by("id").last().delete()
+            return queue
+        return None
+________________
+5)	Создайте пакет для тестов! В данном пакете определите 3 модуля с именами
+models_test.py, form_test.py, views_test.py.
+
+
+________________
+
+

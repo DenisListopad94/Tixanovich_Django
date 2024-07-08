@@ -1,0 +1,82 @@
+1)	—оздать форму дл€ добавлени€ пользователей.
+def user_add(request):
+    if request.method == "POST":
+        form = UserModelForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("hotels"))
+    else:
+        form = UserModelForm()
+    context = {
+        "form": form
+    }
+    return render(
+        request=request,
+        template_name="user_add_form.html",
+        context=context
+    )
+********
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block title %} My amazing booking app {% endblock %}
+
+{% block content %}
+
+    <h2> add user </h2>
+
+    <form action="/booking/user_add_form" method="POST">
+        {% csrf_token %}
+        {{ form |crispy }}
+    <input type="submit" value="OK">
+</form>
+
+{% endblock %}
+
+________________
+2)	—оздать валидаторы дл€ проверки возраста. ¬озраст пользовател€ должен быть
+ от 18 до 90 лет.
+
+def validate_user_age(value):
+    if int(value) < 18 or int(value) > 90:
+        raise ValidationError(
+            f"value {value} must be more than 18 and less then 90",
+        )
+________________
+3)	ƒобавить форму дл€ feedback о отел€х в ней изменить виджеты с Textinput на 
+Textarea и установить bootsrap5 стили оформлени€ дл€ нашей формы.
+
+
+________________
+
+4)	ѕодключить Django-crispy-forms в наш текущий проект
+
+pip install django-crispy-forms
+
+________________
+5)	¬ывести всех пользователей старше 30 которые люб€т спорт!
+
+person_gt30_sport  = Person.objects.filter(age__gt=30).filter(hobbies__name="Sports")
+
+________________
+
+6)	¬ывести первых 5 пользователей у которых больше 3 хобби.
+
+more_than_three_hobbies = Person.objects.annotate(hobby_count=Count('hobbies')).filter(hobby_count__gt=3)[:5]
+
+________________
+
+7)	*¬ывести всех пользователей у которых возраст больше среднего возраста 
+всех пользователей.
+
+avg_age = Person.objects.aggregate(Avg("age"))
+
+age_more_avg  = Person.objects.filter(age__gt = avg_age["age__avg"])
+
+
+
+
+

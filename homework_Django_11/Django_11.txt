@@ -1,0 +1,134 @@
+1)	Создайте собственную функцию для вычисление факториала числа. Создайте 
+словарь CACHE_FACTORIAL. В качестве ключа используйте число а в качестве 
+значения его факториал. Покажите работу кэша добавив нагрузку в виде задержки 
+в 3 секунды при вычислении факториала, если числа нет в вашем словаре. 
+
+from time import sleep
+
+CACHE_FACTORIAL = {}
+
+
+def factorial(some_int):
+    if some_int not in CACHE_FACTORIAL:
+        sleep(3) 
+        result = 1
+        for i in range(1, some_int + 1):
+            result *= i
+        CACHE_FACTORIAL[some_int] = result
+    return CACHE_FACTORIAL[some_int]
+
+
+print(factorial(5))  
+print(factorial(5))  
+print(factorial(10)) 
+________________
+
+2)	С помощью декоратора @lru_cache закешируйте функцию которая рекурсивно 
+считает сумму положительных чисел списка. 
+
+@lru_cache()
+def sum_positive_numbers(numbers_tuple):
+    if len(numbers_tuple) == 0:
+        return 0
+    elif numbers_tuple[0] > 0:
+        return numbers_tuple[0] + sum_positive_numbers(numbers_tuple[1:])
+    else:
+        return sum_positive_numbers(numbers_tuple[1:])
+
+
+numbers_list = [1, 2, 3, 4, -5]
+numbers_tuple = tuple(numbers_list)
+result = sum_positive_numbers(numbers_tuple)
+print(result)
+________________
+
+3)	Используя кэш базы данных, закешируйте несколько вьюшек на 30 минут. 
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "my_cache_table",
+    }
+}
+
+py manage.py createcachetable
+
+@cache_page(timeout=1800)
+@login_required(login_url="/admin/login/")  
+def hotels_view(request):                   
+    context = {
+        "hotels": Hotel.objects.all()
+    }
+    return render(
+        request=request,
+        template_name="hotels.html",
+        context=context
+    )
+
+
+
+
+________________
+
+4)	Используя кеш файловой системы, закешируйте несколько статичных 
+фрагментов HTML страницы на 20 минут. 
+
+CACHES = {
+    "filecache": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "c:/Users/tikhan/PycharmProjects",
+    }
+}
+
+
+{% cache 1200 using="filecache" %}
+
+    <h2> Hotels info </h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">name</th>
+      <th scope="col">address</th>
+      <th scope="col">owners</th>
+      <th scope="col">comments</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for hotel in hotels %}
+    <tr>
+      <th scope="row">{{hotel.id}}</th>
+      <td>{{hotel.name}}</td>
+      <td>{{hotel.address}}</td>
+      <td>{{hotel.owners.first_name}}
+          {{hotel.owners.last_name}}
+      </td>
+      <td>
+        {% for comment in hotel.hotel_comments.all %}
+          {{comment.comment}}
+        {% endfor %}
+      </td>
+    </tr>
+  {% endfor %}
+
+  </tbody>
+</table>
+{% endcache %}
+{% endblock %}
+
+________________
+
+
+________________
+
+
+________________
+
+
+________________
+
+
+
+
+

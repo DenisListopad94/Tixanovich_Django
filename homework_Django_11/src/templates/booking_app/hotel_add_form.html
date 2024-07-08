@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block title %} Add hotel page {% endblock %}
+
+{% block content %}
+
+    <h2> add hotel </h2>
+
+    <form action="/booking/hotel_add_form" method="POST">
+        {% csrf_token %}
+        {{ form |crispy }}
+<!--    <label for="hotel_name">hotel name: </label>-->
+<!--    <input id="hotel_name" type="text" name="hotel_name" value="">-->
+    <input type="submit" value="OK">
+</form>
+
+{% endblock %}
